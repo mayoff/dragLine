@@ -26,7 +26,7 @@ To simplify the process of creating a path for this shape, let's draw it in a st
 
 ![givens in standard pose](standardGivens.png)
 
-We can create this shape as a path by making a circular arc centered at the origin, connected to another (mirror image) circular arc centered at `(0, length)`. To create these arcs, we need this `mysteryAngle`:
+We can create this shape as a path by making a circular arc centered at the origin, connected to another (mirror image) circular arc centered at `(length, 0)`. To create these arcs, we need this `mysteryAngle`:
 
 ![mystery angle](mysteryAngle.png)
 
@@ -274,9 +274,10 @@ First, let's look at `DragEndpoint` (an `NSView` subclass). `NSView` already con
 
 We want to be careful of two things:
 
-- We only want to accept a drag that is a connection attempts. We can figure out whether a drag is a connection attempt by checking whether the source is our custom drag source, `ConnectionDragController`.
+- We only want to accept a drag that is a connection attempt. We can figure out whether a drag is a connection attempt by checking whether the source is our custom drag source, `ConnectionDragController`.
 - We'll make `DragEndpoint` appear to be the drag source (visually only, not programmatically). We don't want to let the user connect an endpoint to itself, so we need to make sure the endpoint that is the source of the connection cannot also be used as the target of the connection. We'll do that using a `state` property that tracks whether this endpoint is idle, acting as the source, or acting as the target.
-- When the user finally releases the mouse button over a valid drop destination, the drag session makes it the destination's responsibility to “perform” the drag by sending it `performDragOperation(_:)`. The session doesn't tell the drag source where the drop finally happened. But we probably want to do the work of making the connection (in our data model) back in the source. Think about how it works in Xcode: when you control-drag from a button in `Main.storyboard` to `ViewController.swift` and create an action, the connection is not recorded in `ViewController.swift` where the drag ended; it's recorded in `Main.storyboard`, as part of the button's persistent data. So when the drag session tells the destination to “perform” the drag, we'll make our destination (`DragEndpoint`) pass itself back to a `connect(to:)` method on the drag source where the real work can happen.
+
+When the user finally releases the mouse button over a valid drop destination, the drag session makes it the destination's responsibility to “perform” the drag by sending it `performDragOperation(_:)`. The session doesn't tell the drag source where the drop finally happened. But we probably want to do the work of making the connection (in our data model) back in the source. Think about how it works in Xcode: when you control-drag from a button in `Main.storyboard` to `ViewController.swift` and create an action, the connection is not recorded in `ViewController.swift` where the drag ended; it's recorded in `Main.storyboard`, as part of the button's persistent data. So when the drag session tells the destination to “perform” the drag, we'll make our destination (`DragEndpoint`) pass itself back to a `connect(to:)` method on the drag source where the real work can happen.
 
 	class DragEndpoint: NSView {
 	
@@ -335,7 +336,8 @@ Now we can implement `ConnectionDragController` to act as the drag source and to
 - The session notifies the source when the drag actually starts, when it moves, and when it ends. We use those notifications to create and update the `LineOverlay`.
 - Since we're not providing any images as part of our `NSDraggingItem`, the session won't draw anything being dragged. This is good.
 - By default, if the drag ends outside of a valid destination, the session will animate… nothing… back to the start of the drag, before notifying the source that the drag has ended. During this animation, the line overlay hangs around, frozen. It looks broken. We tell the session not to animate back to the start to avoid this.
-- Since this is just a demo, the “work” we do to connect the endpoints in `connect(to:)` is just printing their descriptions. In a real app, you'd actually modify your data model.
+
+Since this is just a demo, the “work” we do to connect the endpoints in `connect(to:)` is just printing their descriptions. In a real app, you'd actually modify your data model.
  
 	class ConnectionDragController: NSObject, NSDraggingSource {
 	
