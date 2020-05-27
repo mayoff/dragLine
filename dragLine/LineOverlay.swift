@@ -8,7 +8,7 @@ class LineOverlay {
         self.startScreenPoint = startScreenPoint
         self.endScreenPoint = endScreenPoint
 
-        NotificationCenter.default.addObserver(self, selector: #selector(LineOverlay.screenLayoutDidChange(_:)), name: .NSApplicationDidChangeScreenParameters, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(LineOverlay.screenLayoutDidChange(_:)), name: NSApplication.didChangeScreenParametersNotification, object: nil)
         synchronizeWindowsToScreens()
     }
 
@@ -35,12 +35,12 @@ class LineOverlay {
     private func synchronizeWindowsToScreens() {
         var spareWindows = windows
         windows.removeAll()
-        for screen in NSScreen.screens() ?? [] {
+        for screen in NSScreen.screens {
             let window: NSWindow
-            if let index = spareWindows.index(where: { $0.screen === screen}) {
+            if let index = spareWindows.firstIndex(where: { $0.screen === screen}) {
                 window = spareWindows.remove(at: index)
             } else {
-                let styleMask = NSWindowStyleMask.borderless
+                let styleMask = NSWindow.StyleMask.borderless
                 window = NSWindow(contentRect: .zero, styleMask: styleMask, backing: .buffered, defer: true, screen: screen)
                 window.contentView = ConnectionView()
                 window.isReleasedWhenClosed = false
@@ -60,7 +60,7 @@ class LineOverlay {
             window.isOpaque = false
             window.hasShadow = false
             window.isOneShot = true
-            window.level = 1
+            window.level = NSWindow.Level(rawValue: 1)
 
             window.contentView?.needsLayout = true
             window.orderFront(nil)
@@ -94,7 +94,7 @@ private class ConnectionView: NSView {
 
         wantsLayer = true
 
-        shapeLayer.lineJoin = kCALineJoinMiter
+        shapeLayer.lineJoin = CAShapeLayerLineJoin.miter
         shapeLayer.lineWidth = 0.75
         shapeLayer.strokeColor = NSColor.white.cgColor
         shapeLayer.fillColor = NSColor(calibratedHue: 209/360, saturation: 0.83, brightness: 1, alpha: 1).cgColor
@@ -117,7 +117,7 @@ private class ConnectionView: NSView {
     }
 
     public override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
-        Swift.print("draggingEntered \(self) \(sender)")
+        debugPrint("draggingEntered \(self) \(sender)")
         return []
     }
 
