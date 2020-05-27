@@ -15,9 +15,9 @@ class DragEndpoint: NSView {
 
     public override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
         guard case .idle = state else { return [] }
-        guard (sender.draggingSource() as? ConnectionDragController)?.sourceEndpoint != nil else { return [] }
+        guard (sender.draggingSource as? ConnectionDragController)?.sourceEndpoint != nil else { return [] }
         state = .target
-        return sender.draggingSourceOperationMask()
+        return sender.draggingSourceOperationMask
     }
 
     public override func draggingExited(_ sender: NSDraggingInfo?) {
@@ -31,7 +31,7 @@ class DragEndpoint: NSView {
     }
 
     public override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
-        guard let controller = sender.draggingSource() as? ConnectionDragController else { return false }
+        guard let controller = sender.draggingSource as? ConnectionDragController else { return false }
         controller.connect(to: self)
         return true
     }
@@ -48,7 +48,7 @@ class DragEndpoint: NSView {
 
     private func commonInit() {
         wantsLayer = true
-        register(forDraggedTypes: [kUTTypeData as String])
+        registerForDraggedTypes([NSPasteboard.PasteboardType(rawValue: kUTTypeData as String)])
     }
 
     override func makeBackingLayer() -> CALayer {
@@ -68,7 +68,7 @@ class DragEndpoint: NSView {
 
     private func setAppearanceForState() {
         shapeLayer.lineWidth = 3
-        shapeLayer.lineJoin = kCALineJoinRound
+        shapeLayer.lineJoin = CAShapeLayerLineJoin.round
         switch state {
         case .idle:
             shapeLayer.strokeColor = NSColor.darkGray.cgColor

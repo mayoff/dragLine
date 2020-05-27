@@ -2,5 +2,5 @@
 
 import AppKit
 
-NSPasteboardItem.readableTypes(for: NSPasteboard(name: NSGeneralPboard))
+NSPasteboardItem.readableTypes(for: NSPasteboard(name: NSPasteboard.Name.generalPboard))
 

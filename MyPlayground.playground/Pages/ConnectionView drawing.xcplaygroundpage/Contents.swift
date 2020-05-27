@@ -65,7 +65,7 @@
         private func commonInit() {
             wantsLayer = true
 
-            shapeLayer.lineJoin = kCALineJoinMiter
+            shapeLayer.lineJoin = CAShapeLayerLineJoin.miter
             shapeLayer.lineWidth = 0.75
             shapeLayer.strokeColor = NSColor.white.cgColor
             shapeLayer.fillColor = NSColor(calibratedHue: 209/360, saturation: 0.83, brightness: 1, alpha: 1).cgColor

@@ -7,12 +7,13 @@ class ConnectionDragController: NSObject, NSDraggingSource {
     var sourceEndpoint: DragEndpoint?
 
     func connect(to target: DragEndpoint) {
-        Swift.print("Connect \(sourceEndpoint!) to \(target)")
+        debugPrint("Connect \(sourceEndpoint!) to \(target)")
     }
 
     func trackDrag(forMouseDownEvent mouseDownEvent: NSEvent, in sourceEndpoint: DragEndpoint) {
         self.sourceEndpoint = sourceEndpoint
-        let item = NSDraggingItem(pasteboardWriter: NSPasteboardItem(pasteboardPropertyList: "\(view)", ofType: kUTTypeData as String)!)
+        let item = NSDraggingItem(pasteboardWriter: NSPasteboardItem(pasteboardPropertyList: sourceEndpoint.description, ofType: NSPasteboard.PasteboardType(rawValue: kUTTypeData as String))!)
+        item.setDraggingFrame(sourceEndpoint.frame, contents: nil)
         let session = sourceEndpoint.beginDraggingSession(with: [item], event: mouseDownEvent, source: self)
         session.animatesToStartingPositionsOnCancelOrFail = false
     }
@@ -21,6 +22,8 @@ class ConnectionDragController: NSObject, NSDraggingSource {
         switch context {
         case .withinApplication: return .generic
         case .outsideApplication: return []
+        @unknown default:
+            fatalError()
         }
     }
 
